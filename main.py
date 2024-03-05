@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional
+import requests
 
 app = FastAPI()
 
@@ -51,6 +52,9 @@ async def obter_transacoes_do_cliente(cliente_id: int = 0):
 async def obter_cliente_por_id(cliente_id: int = 0):
     for cliente in clientes_db:
         if cliente["id"] == cliente_id:
-            informacoes_do_cliente = {k: v for k, v in cliente.items() if k != "transacoes"}
+            dados_cliente = {k: v for k, v in cliente.items() if k != "transacoes"}
             transacoes_do_cliente = obter_transacoes_do_cliente(cliente_id)
+            dados_cliente["transacoes"] = transacoes_do_cliente["transacoes"]
+
+            return {"cliente": dados_cliente}
         raise HTTPException(status_code=404, detail="Cliente não encontrado")
